@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tripdog.mapper.DocMapper">
+
+    <resultMap id="BaseResultMap" type="com.tripdog.model.entity.DocDO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="file_id" property="fileId" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="role_id" property="roleId" jdbcType="BIGINT"/>
+        <result column="file_url" property="fileUrl" jdbcType="LONGVARCHAR"/>
+        <result column="file_name" property="fileName" jdbcType="VARCHAR"/>
+        <result column="file_size" property="fileSize" jdbcType="BIGINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="BaseColumnList">
+        id, file_id, user_id, role_id, file_url, file_name, file_size, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="com.tripdog.model.entity.DocDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_doc (file_id, user_id, role_id, file_url, file_name, file_size)
+        VALUES (#{fileId}, #{userId}, #{roleId}, #{fileUrl}, #{fileName}, #{fileSize})
+    </insert>
+
+    <select id="selectByFileId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseColumnList"/>
+        FROM t_doc
+        WHERE file_id = #{fileId}
+    </select>
+
+    <select id="selectByUserIdAndRoleId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseColumnList"/>
+        FROM t_doc
+        WHERE user_id = #{userId} AND role_id = #{roleId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByUserId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseColumnList"/>
+        FROM t_doc
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseColumnList"/>
+        FROM t_doc
+        WHERE id = #{id}
+    </select>
+
+    <delete id="deleteByFileId" parameterType="java.lang.String">
+        DELETE FROM t_doc WHERE file_id = #{fileId}
+    </delete>
+
+</mapper>

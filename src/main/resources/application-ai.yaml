@@ -1,0 +1,35 @@
+langchain4j:
+  community:
+    dashscope:
+      # LLM
+      chat-model:
+        api-key: ${DASHSCOPE_API_KEY}
+        model-name: qwen-plus
+        temperature: 0.7
+      # Streaming LLM
+      streaming-chat-model:
+        api-key: ${DASHSCOPE_API_KEY}
+        model-name: qwen-plus
+        temperature: 0.7
+      # Embedding model
+      embedding-model:
+        api-key: ${DASHSCOPE_API_KEY}
+        model-name: text-embedding-v3
+        dimensions: 1024
+
+# Embedding model - PgVector
+pgvector:
+  host: ${PGVECTOR_HOST:${SERVER_IP:localhost}}
+  port: ${PGVECTOR_PORT:5432}
+  database: ${PGVECTOR_DATABASE:trip_vdb}
+  user: ${PGVECTOR_USER:postgres}
+  password: ${PGVECTOR_PASSWORD:postgres}
+  table: ${PGVECTOR_TABLE:vectors_db}
+
+# chat config
+chat:
+  compress:
+    enabled: true
+    maxTotalTokens: 6000
+    recentRawCount: 10
+    minMessagesToCompress: 20

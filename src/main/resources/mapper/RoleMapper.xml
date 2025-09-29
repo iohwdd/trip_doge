@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tripdog.mapper.RoleMapper">
+
+    <resultMap id="BaseResultMap" type="com.tripdog.model.entity.RoleDO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="avatar_url" property="avatarUrl" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="LONGVARCHAR"/>
+        <result column="ai_setting" property="aiSetting" jdbcType="LONGVARCHAR"/>
+        <result column="role_setting" property="roleSetting" jdbcType="LONGVARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="sort_order" property="sortOrder" jdbcType="INTEGER"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.tripdog.model.entity.RoleDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_role (
+            code, name, avatar_url, description, ai_setting, role_setting,
+            status, sort_order, created_at, updated_at
+        ) VALUES (
+            #{code}, #{name}, #{avatarUrl}, #{description}, #{aiSetting}, #{roleSetting},
+            #{status}, #{sortOrder}, NOW(), NOW()
+        )
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM t_role WHERE id = #{id}
+    </delete>
+
+    <update id="updateById" parameterType="com.tripdog.model.entity.RoleDO">
+        UPDATE t_role SET
+            code = #{code},
+            name = #{name},
+            avatar_url = #{avatarUrl},
+            description = #{description},
+            ai_setting = #{aiSetting},
+            role_setting = #{roleSetting},
+            status = #{status},
+            sort_order = #{sortOrder},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT * FROM t_role WHERE id = #{id}
+    </select>
+
+    <select id="selectRoleList" resultMap="BaseResultMap">
+        SELECT * FROM t_role
+        <where>
+            <if test="code != null and code != ''">
+                AND code = #{code}
+            </if>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="sortOrder != null">
+                AND sort_order = #{sortOrder}
+            </if>
+            <if test="createdAt != null">
+                AND DATE(created_at) = DATE(#{createdAt})
+            </if>
+        </where>
+        ORDER BY sort_order ASC, created_at DESC
+    </select>
+
+    <select id="selectByCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT * FROM t_role WHERE code = #{code} AND status = 1
+    </select>
+
+    <select id="selectActiveRoles" resultMap="BaseResultMap">
+        SELECT * FROM t_role WHERE status = 1 ORDER BY sort_order ASC
+    </select>
+
+</mapper>

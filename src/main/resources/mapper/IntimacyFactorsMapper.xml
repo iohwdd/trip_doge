@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tripdog.mapper.IntimacyFactorsMapper">
+
+    <!-- 基础字段映射 -->
+    <resultMap id="BaseResultMap" type="com.tripdog.model.entity.IntimacyFactorsDO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="conversation_id" property="conversationId" jdbcType="VARCHAR"/>
+        <result column="factor_type" property="factorType" jdbcType="VARCHAR"/>
+        <result column="factor_value" property="factorValue" jdbcType="INTEGER"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!-- 插入亲密度因素记录 -->
+    <insert id="insert" parameterType="com.tripdog.model.entity.IntimacyFactorsDO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_intimacy_factors (
+            conversation_id, factor_type, factor_value, description, created_at
+        ) VALUES (
+            #{conversationId}, #{factorType}, #{factorValue}, #{description}, NOW()
+        )
+    </insert>
+
+    <!-- 根据ID删除亲密度因素记录 -->
+    <delete id="deleteById" parameterType="java.lang.Long">
+        DELETE FROM t_intimacy_factors WHERE id = #{id}
+    </delete>
+
+    <!-- 更新亲密度因素记录 -->
+    <update id="updateById" parameterType="com.tripdog.model.entity.IntimacyFactorsDO">
+        UPDATE t_intimacy_factors SET
+            conversation_id = #{conversationId},
+            factor_type = #{factorType},
+            factor_value = #{factorValue},
+            description = #{description}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据ID查询亲密度因素记录 -->
+    <select id="selectById" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT * FROM t_intimacy_factors WHERE id = #{id}
+    </select>
+
+    <!-- 动态条件查询亲密度因素记录 -->
+    <select id="selectIntimacyFactorsList" resultMap="BaseResultMap">
+        SELECT * FROM t_intimacy_factors
+        <where>
+            <if test="conversationId != null">
+                AND conversation_id = #{conversationId}
+            </if>
+            <if test="factorType != null and factorType != ''">
+                AND factor_type = #{factorType}
+            </if>
+            <if test="factorValue != null">
+                AND factor_value = #{factorValue}
+            </if>
+            <if test="createdAt != null">
+                AND DATE(created_at) = DATE(#{createdAt})
+            </if>
+        </where>
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- 计算会话当前总亲密度 -->
+    <select id="calculateCurrentIntimacy" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        SELECT COALESCE(SUM(factor_value), 0) as total_intimacy
+        FROM t_intimacy_factors
+        WHERE conversation_id = #{conversationId}
+    </select>
+
+    <!-- 根据会话ID删除所有亲密度因素记录 -->
+    <delete id="deleteByConversationId" parameterType="java.lang.Long">
+        DELETE FROM t_intimacy_factors WHERE conversation_id = #{conversationId}
+    </delete>
+
+    <!-- 根据因素类型统计亲密度变化 -->
+    <select id="selectIntimacyTrendByType" resultMap="BaseResultMap">
+        SELECT * FROM t_intimacy_factors
+        WHERE conversation_id = #{conversationId}
+        <if test="factorType != null and factorType != ''">
+            AND factor_type = #{factorType}
+        </if>
+        ORDER BY created_at ASC
+    </select>
+
+    <!-- 获取会话最近的亲密度变化记录 -->
+    <select id="selectRecentIntimacyChanges" resultMap="BaseResultMap">
+        SELECT * FROM t_intimacy_factors
+        WHERE conversation_id = #{conversationId}
+        ORDER BY created_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 批量插入亲密度因素记录 -->
+    <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO t_intimacy_factors (conversation_id, factor_type, factor_value, description, created_at)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.conversationId}, #{item.factorType}, #{item.factorValue}, #{item.description}, NOW())
+        </foreach>
+    </insert>
+
+</mapper>

@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tripdog.mapper.ConversationMapper">
+
+    <resultMap id="BaseResultMap" type="com.tripdog.model.entity.ConversationDO">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="conversation_id" property="conversationId" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="BIGINT"/>
+        <result column="role_id" property="roleId" jdbcType="BIGINT"/>
+        <result column="title" property="title" jdbcType="VARCHAR"/>
+        <result column="conversation_type" property="conversationType" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="INTEGER"/>
+        <result column="intimacy_level" property="intimacyLevel" jdbcType="INTEGER"/>
+        <result column="total_messages" property="totalMessages" jdbcType="INTEGER"/>
+        <result column="last_message_at" property="lastMessageAt" jdbcType="TIMESTAMP"/>
+        <result column="message_count" property="messageCount" jdbcType="INTEGER"/>
+        <result column="total_input_tokens" property="totalInputTokens" jdbcType="INTEGER"/>
+        <result column="total_output_tokens" property="totalOutputTokens" jdbcType="INTEGER"/>
+        <result column="context_window_size" property="contextWindowSize" jdbcType="INTEGER"/>
+        <result column="personality_adjustment" property="personalityAdjustment" jdbcType="LONGVARCHAR"/>
+        <result column="mood" property="mood" jdbcType="VARCHAR"/>
+        <result column="tags" property="tags" jdbcType="VARCHAR"/>
+        <result column="special_notes" property="specialNotes" jdbcType="LONGVARCHAR"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        <result column="updated_at" property="updatedAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.tripdog.model.entity.ConversationDO">
+        INSERT INTO t_conversation (
+            id, conversation_id, user_id, role_id, title, conversation_type, status, intimacy_level,
+            last_message_at, message_count, total_input_tokens, total_output_tokens,
+            context_window_size, personality_adjustment, tags, special_notes, created_at, updated_at
+        ) VALUES (
+            #{id}, #{conversationId}, #{userId}, #{roleId}, #{title}, #{conversationType}, #{status}, #{intimacyLevel},
+            #{lastMessageAt}, #{messageCount}, #{totalInputTokens}, #{totalOutputTokens},
+            #{contextWindowSize}, #{personalityAdjustment}, #{tags}, #{specialNotes}, NOW(), NOW()
+        )
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.String">
+        DELETE FROM t_conversation WHERE id = #{id}
+    </delete>
+
+    <update id="updateById" parameterType="com.tripdog.model.entity.ConversationDO">
+        UPDATE t_conversation SET
+            user_id = #{userId},
+            role_id = #{roleId},
+            title = #{title},
+            conversation_type = #{conversationType},
+            status = #{status},
+            intimacy_level = #{intimacyLevel},
+            last_message_at = #{lastMessageAt},
+            message_count = #{messageCount},
+            total_input_tokens = #{totalInputTokens},
+            total_output_tokens = #{totalOutputTokens},
+            context_window_size = #{contextWindowSize},
+            personality_adjustment = #{personalityAdjustment},
+            tags = #{tags},
+            special_notes = #{specialNotes},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectById" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT * FROM t_conversation WHERE id = #{id}
+    </select>
+
+    <select id="selectByConversationId" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT * FROM t_conversation WHERE conversation_id = #{conversationId}
+    </select>
+
+    <select id="selectConversationList" resultMap="BaseResultMap">
+        SELECT * FROM t_conversation
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="roleId != null">
+                AND role_id = #{roleId}
+            </if>
+            <if test="title != null and title != ''">
+                AND title LIKE CONCAT('%', #{title}, '%')
+            </if>
+            <if test="conversationType != null and conversationType != ''">
+                AND conversation_type = #{conversationType}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="intimacyLevel != null">
+                AND intimacy_level = #{intimacyLevel}
+            </if>
+            <if test="createdAt != null">
+                AND DATE(created_at) = DATE(#{createdAt})
+            </if>
+        </where>
+        ORDER BY last_message_at DESC, created_at DESC
+    </select>
+
+</mapper>

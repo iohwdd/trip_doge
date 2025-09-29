@@ -1,0 +1,155 @@
+spring:
+  application:
+    name: tripdog-backend
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:ai}
+
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+  # Web配置
+  web:
+    resources:
+      add-mappings: true
+
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/trip_dog?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+  # 邮件配置
+  mail:
+    host: ${MAIL_HOST:smtp.qq.com}
+    port: ${MAIL_PORT:465}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true  # 启用SSL
+          socketFactory:
+            port: 465
+            class: javax.net.ssl.SSLSocketFactory
+            fallback: false
+  # Redis配置
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DATABASE}
+      timeout: 10s
+      lettuce:
+        pool:
+          max-active: 20
+          max-wait: 5s
+          max-idle: 10
+          min-idle: 2
+        shutdown-timeout: 100ms
+
+  # Session配置 - 使用Redis存储
+  session:
+    store-type: redis
+    timeout: 30m
+    redis:
+      namespace: "tripdog:session"
+
+  # 缓存配置
+  cache:
+    type: redis
+    redis:
+      time-to-live: 1h
+      cache-null-values: false
+      key-prefix: "tripdog:cache:"
+
+
+server:
+  port: ${SERVER_PORT:7979}
+  servlet:
+    context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  # 支持跨域的其他配置
+  error:
+    include-message: always
+    include-binding-errors: always
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.tripdog: INFO
+    org.springframework.security: WARN
+    # Redis相关日志级别
+    org.springframework.data.redis: INFO
+    io.lettuce.core: WARN
+    # Session相关日志级别
+    org.springframework.session: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: ./logs/tripdog-backend.log
+    max-size: 100MB
+    max-history: 30
+
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: com.tripdog.model
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# minio
+minio:
+  endpoint: ${MINIO_ENDPOINT}
+  access-key: ${MINIO_AK}
+  secret-key: ${MINIO_SK}
+  bucket-name: trip-doge
+
+# CORS 跨域配置
+cors:
+  # 允许的源域名，多个用逗号分隔
+  # 开发环境常用端口 + 生产环境域名
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080,http://localhost:5173,http://localhost:4200,http://127.0.0.1:3000,http://127.0.0.1:8080,http://127.0.0.1:5173,http://127.0.0.1:4200,https://trip-doge-frontend.zeabur.app}
+  # 是否允许携带凭证
+  allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
+
+# Swagger/OpenAPI 配置
+springdoc:
+  api-docs:
+    # OpenAPI 3 JSON 文档路径
+    path: /v3/api-docs
+    # 启用 API 文档
+    enabled: true
+  swagger-ui:
+    # Swagger UI 访问路径
+    path: /swagger-ui.html
+    # 启用 Swagger UI
+    enabled: true
+    # 操作排序方式: alpha(字母排序), method(HTTP方法排序)
+    operations-sorter: method
+    # 标签排序方式
+    tags-sorter: alpha
+    # 默认展开深度
+    doc-expansion: none
+    # 显示请求持续时间
+    display-request-duration: true
+  # 显示执行器端点
+  show-actuator: false
+  # 包扫描路径
+  packages-to-scan: com.tripdog.controller
