@@ -95,7 +95,7 @@ java -jar target/tripdog-backend-1.0.0.jar
 - AI对话（SSE流式）：`/api/chat/{roleId}`
 - 角色管理：`/api/roles/list`
 - 文档管理：`/api/doc/parse`、`/api/doc/list`、`/api/doc/download`、`/api/doc/delete`
-- Swagger文档：`/api/swagger-ui.html`
+- Swagger文档：`/swagger-ui/index.html`
 
 详细接口说明见 [`docs/TripDoge功能模块.md`](docs/TripDoge功能模块.md)。
 
