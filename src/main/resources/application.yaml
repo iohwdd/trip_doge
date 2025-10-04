@@ -117,6 +117,7 @@ mybatis:
 # minio
 minio:
   endpoint: ${MINIO_ENDPOINT}
+  port: ${MINIO_PORT:9000}
   access-key: ${MINIO_AK}
   secret-key: ${MINIO_SK}
   bucket-name: trip-doge
