@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import com.tripdog.ai.assistant.ChatAssistant;
 import com.tripdog.ai.embedding.RetrieverFactory;
 import com.tripdog.ai.mcp.McpClientFactory;
+import com.tripdog.ai.tool.MyTools;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.input.PromptTemplate;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
@@ -45,7 +46,7 @@ public class AssistantService {
             .streamingChatModel(chatLanguageModel)
             .retrievalAugmentor(retrievalAugmentor)
             .chatMemoryProvider(chatMemoryProvider)
-            // .tools(new MyTools())
+            .tools(new MyTools())
             // .toolProvider(toolProvider)
             .build();
 

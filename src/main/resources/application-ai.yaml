@@ -19,12 +19,19 @@ langchain4j:
 
 # Embedding model - PgVector
 pgvector:
-  host: ${PGVECTOR_HOST:${SERVER_IP:localhost}}
-  port: ${PGVECTOR_PORT:5432}
-  database: ${PGVECTOR_DATABASE:trip_vdb}
-  user: ${PGVECTOR_USER:postgres}
-  password: ${PGVECTOR_PASSWORD:postgres}
-  table: ${PGVECTOR_TABLE:vectors_db}
+  host: ${PGVECTOR_HOST}
+  port: ${PGVECTOR_PORT}
+  database: ${PGVECTOR_DATABASE}
+  user: ${PGVECTOR_USER}
+  password: ${PGVECTOR_PASSWORD}
+  table: ${PGVECTOR_TABLE}
+#pgvector:
+#  host: 111.62.241.120
+#  port: 32115
+#  database: trip_vdb
+#  user: root
+#  password: QtPck4m9A0b5IVeBruXZ7Ejg183W62Rs
+#  table: vectors_db
 
 # chat config
 chat:

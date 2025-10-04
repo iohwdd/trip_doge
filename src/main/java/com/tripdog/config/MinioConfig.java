@@ -14,14 +14,16 @@ import lombok.Data;
 @Data
 public class MinioConfig {
     private String endpoint;
+    private String port;
     private String accessKey;
     private String secretKey;
     private String bucketName;
 
+
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
-                .endpoint(endpoint)
+                .endpoint("http://" + endpoint + ":" + port)
                 .credentials(accessKey, secretKey)
                 .build();
     }

@@ -81,7 +81,7 @@ mvn spring-boot:run
 ### 生产环境
 
 ```bash
-export SPRING_PROFILES_ACTIVE=prod
+export SPRING_PROFILES_ACTIVE=ai,prod
 mvn clean package -DskipTests
 java -jar target/tripdog-backend-1.0.0.jar
 ```

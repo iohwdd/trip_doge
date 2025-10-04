@@ -8,12 +8,14 @@
         <result column="role" property="role" jdbcType="VARCHAR"/>
         <result column="content" property="content" jdbcType="LONGVARCHAR"/>
         <result column="enhanced_content" property="enhancedContent" jdbcType="LONGVARCHAR"/>
+        <result column="tool_call" property="toolCall" jdbcType="LONGVARCHAR"/>
+        <result column="tool_exec_result" property="toolExecResult" jdbcType="LONGVARCHAR"/>
         <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.tripdog.model.entity.ChatHistoryDO">
-        INSERT INTO t_chat_history ( conversation_id, role, content, enhanced_content, created_at)
-        VALUES (#{conversationId}, #{role}, #{content}, #{enhancedContent}, NOW())
+        INSERT INTO t_chat_history ( conversation_id, role, content, enhanced_content, tool_call, tool_exec_result, created_at)
+        VALUES (#{conversationId}, #{role}, #{content}, #{enhancedContent}, #{toolCall}, #{toolExecResult}, NOW())
     </insert>
 
     <delete id="deleteById" parameterType="java.lang.String">
@@ -25,7 +27,9 @@
             conversation_id = #{conversationId},
             role = #{role},
             content = #{content},
-            enhanced_content = #{enhancedContent}
+            enhanced_content = #{enhancedContent},
+            tool_call = #{toolCall},
+            tool_exec_result = #{toolExecResult}
         WHERE id = #{id}
     </update>
 
