@@ -1,4 +1,4 @@
-package com.tripdog.interceptor;
+package com.tripdog.hook.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tripdog.common.ErrorCode;
@@ -38,11 +38,6 @@ public class LoginInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        // 检查是否是需要登录的接口
-        if (isExcludedPath(requestURI)) {
-            return true;
-        }
-
         // 从请求中提取token
         String token = TokenUtils.extractToken(request);
         if (token == null) {
@@ -70,32 +65,8 @@ public class LoginInterceptor implements HandlerInterceptor {
         request.setAttribute("loginUser", loginUser);
         request.setAttribute("userToken", token);
 
-        log.debug("用户身份验证成功: {} ({})", loginUser.getNickname(), loginUser.getId());
         return true;
     }
-
-    /**
-     * 判断是否是不需要登录的路径
-     */
-    private boolean isExcludedPath(String requestURI) {
-        // 不需要登录的路径
-        String[] excludePaths = {
-            "/api/user/register",
-            "/api/user/login",
-            "/api/user/sendEmail",
-            "/api/roles/list"
-        };
-
-        for (String path : excludePaths) {
-            if (requestURI.startsWith(path)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
 
     /**
      * 写入错误响应
