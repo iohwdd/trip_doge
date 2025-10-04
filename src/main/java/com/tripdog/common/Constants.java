@@ -10,6 +10,7 @@ public class Constants {
     public static final String USER = "user";
     public static final String ASSISTANT = "assistant";
     public static final String SYSTEM = "system";
+    public static final String TOOL = "tool";
     public static final String ROLE_ID = "roleId";
     public static final String USER_ID = "userId";
     public static final String FILE_ID = "fileId";

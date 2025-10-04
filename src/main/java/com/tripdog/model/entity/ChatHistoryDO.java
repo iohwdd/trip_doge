@@ -37,6 +37,16 @@ public class ChatHistoryDO {
     private String enhancedContent;
 
     /**
+     * 工具调用请求
+     */
+    private String toolCall;
+
+    /**
+     * 工具调用结果
+     */
+    private String toolExecResult;
+
+    /**
      * 消息创建时间
      */
     private LocalDateTime createdAt;

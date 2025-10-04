@@ -1,9 +1,17 @@
 package com.tripdog.model.builder;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tripdog.common.Constants;
+import com.tripdog.common.utils.JsonUtil;
 import com.tripdog.model.entity.ConversationDO;
 import com.tripdog.model.entity.ChatHistoryDO;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.data.message.ToolExecutionResultMessage;
 
 /**
  * 会话和聊天历史对象构建器
@@ -104,6 +112,75 @@ public class ConversationBuilder {
         chatHistory.setContent(originalContent);
         chatHistory.setEnhancedContent(enhancedContent);
         chatHistory.setCreatedAt(LocalDateTime.now());
+        return chatHistory;
+    }
+
+    /**
+     * 创建带有工具调用的助手消息
+     */
+    public static ChatHistoryDO buildAssistantMessageWithToolCall(String conversationId, String content, String toolCall) {
+        ChatHistoryDO chatHistory = new ChatHistoryDO();
+        chatHistory.setConversationId(conversationId);
+        chatHistory.setRole(Constants.ASSISTANT);
+        chatHistory.setContent(content);
+        chatHistory.setToolCall(toolCall);
+        chatHistory.setCreatedAt(LocalDateTime.now());
+        return chatHistory;
+    }
+
+    /**
+     * 创建带有工具执行结果的助手消息
+     */
+    public static ChatHistoryDO buildAssistantMessageWithToolResult(String conversationId, String content, String toolExecResult) {
+        ChatHistoryDO chatHistory = new ChatHistoryDO();
+        chatHistory.setConversationId(conversationId);
+        chatHistory.setRole(Constants.ASSISTANT);
+        chatHistory.setContent(content);
+        chatHistory.setToolExecResult(toolExecResult);
+        chatHistory.setCreatedAt(LocalDateTime.now());
+        return chatHistory;
+    }
+
+    /**
+     * 创建完整的助手消息（支持检索增强、工具调用和工具执行结果）
+     */
+    public static ChatHistoryDO buildFullAssistantMessage(String conversationId, String content, String enhancedContent, String toolCall, String toolExecResult) {
+        ChatHistoryDO chatHistory = new ChatHistoryDO();
+        chatHistory.setConversationId(conversationId);
+        chatHistory.setRole(Constants.ASSISTANT);
+        chatHistory.setContent(content);
+        chatHistory.setEnhancedContent(enhancedContent);
+        chatHistory.setToolCall(toolCall);
+        chatHistory.setToolExecResult(toolExecResult);
+        chatHistory.setCreatedAt(LocalDateTime.now());
+        return chatHistory;
+    }
+
+    /**
+     * 创建完整的助手消息（支持检索增强和工具执行结果）- 兼容性方法
+     */
+    public static ChatHistoryDO buildFullAssistantMessage(String conversationId, String content, String enhancedContent, String toolExecResult) {
+        return buildFullAssistantMessage(conversationId, content, enhancedContent, null, toolExecResult);
+    }
+
+    public static ChatHistoryDO buildToolExecResultMessage(String conversationId, ToolExecutionResultMessage toolExecResult) {
+        ChatHistoryDO chatHistory = new ChatHistoryDO();
+        chatHistory.setConversationId(conversationId);
+        chatHistory.setRole(Constants.ASSISTANT);
+        chatHistory.setToolExecResult(toolExecResult.text());
+        chatHistory.setCreatedAt(LocalDateTime.now());
+
+        return chatHistory;
+    }
+
+    public static ChatHistoryDO buildToolCallMessage(String conversationId, AiMessage message) {
+        List<ToolExecutionRequest> toolExecutionRequests = message.toolExecutionRequests();
+        ChatHistoryDO chatHistory = new ChatHistoryDO();
+        chatHistory.setConversationId(conversationId);
+        chatHistory.setRole(Constants.ASSISTANT);
+        chatHistory.setToolCall(JsonUtil.toJson(toolExecutionRequests));
+        chatHistory.setCreatedAt(LocalDateTime.now());
+
         return chatHistory;
     }
 }

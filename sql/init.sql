@@ -6,8 +6,8 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- 创建数据库（如果不存在）
-CREATE DATABASE IF NOT EXISTS `trip_dog` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `trip_dog`;
+CREATE DATABASE IF NOT EXISTS `trip_doge` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `trip_doge`;
 
 create table t_chat_history
 (
@@ -15,8 +15,10 @@ create table t_chat_history
         primary key,
     conversation_id  varchar(50)                         not null comment '所属会话ID',
     role             varchar(20)                         not null comment '消息角色：user/assistant/system',
-    content          mediumtext                          not null comment '消息内容',
+    content          mediumtext                          null comment '消息内容',
     enhanced_content mediumtext                          null comment '检索增强内容',
+    tool_call        mediumtext                          null comment '工具调用',
+    tool_exec_result varchar(255)                        null comment '工具调用结果',
     input_tokens     int                                 null comment '输入token数（用户消息+系统提示+历史上下文）',
     output_tokens    int                                 null comment '输出token数（AI生成的回复内容）',
     created_at       timestamp default CURRENT_TIMESTAMP null comment '创建时间'
@@ -52,7 +54,9 @@ create table t_conversation
     tags                     varchar(500)                          null comment '标签：如"日常陪伴,心情低落,需要鼓励"等',
     special_notes            text                                  null comment '特殊备注：用户重要信息，角色需要记住的内容',
     created_at               timestamp   default CURRENT_TIMESTAMP null comment '建立连接时间',
-    updated_at               timestamp   default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间'
+    updated_at               timestamp   default CURRENT_TIMESTAMP null on update CURRENT_TIMESTAMP comment '更新时间',
+    constraint idx_user_role
+        unique (user_id, role_id)
 )
     comment '会话表';
 
@@ -88,6 +92,20 @@ create index idx_conversation
 
 create index idx_created_at
     on t_conversation_summary (created_at);
+
+create table t_doc
+(
+    id          bigint auto_increment
+        primary key,
+    file_id     varchar(100)                        not null comment '文件ID',
+    user_id     bigint                              not null comment '用户ID',
+    role_id     bigint                              not null comment '角色ID',
+    file_url    text                                not null comment '文件访问地址',
+    file_name   varchar(255)                        not null comment '文件名',
+    file_size   decimal(20, 2)                      null comment '文件大小',
+    create_time timestamp default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time timestamp default CURRENT_TIMESTAMP not null comment '最后更新时间'
+);
 
 create table t_intimacy_factors
 (
@@ -150,6 +168,8 @@ create index idx_email
 
 create index idx_status
     on t_user (status);
+
+
 
 
 -- 插入初始角色数据
