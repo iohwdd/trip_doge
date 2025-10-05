@@ -1,6 +1,6 @@
 spring:
   application:
-    name: tripdog-backend
+    name: trip-doge
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:ai}
 
@@ -58,20 +58,7 @@ spring:
           min-idle: 2
         shutdown-timeout: 100ms
 
-  # Session配置 - 使用Redis存储
-  session:
-    store-type: redis
-    timeout: 30m
-    redis:
-      namespace: "tripdog:session"
 
-  # 缓存配置
-  cache:
-    type: redis
-    redis:
-      time-to-live: 1h
-      cache-null-values: false
-      key-prefix: "tripdog:cache:"
 
 
 server:
@@ -86,6 +73,7 @@ server:
   error:
     include-message: always
     include-binding-errors: always
+  address: 0.0.0.0
 
 # 日志配置
 logging:
@@ -154,3 +142,18 @@ springdoc:
   show-actuator: false
   # 包扫描路径
   packages-to-scan: com.tripdog.controller
+
+
+# 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
+    metrics:
+      enabled: true

@@ -34,7 +34,9 @@ public class WebConfig implements WebMvcConfigurer {
                         "/roles/list",         // 角色列表（可能需要在未登录时访问）
                         "/api-docs/**",        // Swagger API 文档
                         "/swagger-ui/**",      // Swagger UI 资源
-                        "/swagger-ui.html"     // Swagger UI 首页
+                        "/swagger-ui.html",    // Swagger UI 首页
+                        "/actuator",           // 监控配置
+                        "/actuator/**"
                 );
     }
 
