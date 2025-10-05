@@ -103,8 +103,6 @@ public class DocController {
             FileUploadDTO fileUploadDTO = fileUploadUtils.upload2Minio(
                 file,
                 userInfoVO.getId(),
-                minioClient,
-                minioConfig.getBucketName(),
                 "/doc"
             );
 

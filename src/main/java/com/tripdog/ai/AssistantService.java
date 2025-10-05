@@ -49,7 +49,6 @@ public class AssistantService {
             .tools(new MyTools())
             // .toolProvider(toolProvider)
             .build();
-
     }
 
 }

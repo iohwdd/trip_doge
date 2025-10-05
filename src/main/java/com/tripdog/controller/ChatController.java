@@ -47,7 +47,7 @@ public class ChatController {
     })
     @PostMapping(value = "/{roleId}", produces = "text/event-stream;charset=UTF-8")
     public SseEmitter chat(@Parameter(description = "角色ID", required = true) @PathVariable Long roleId,
-                          @RequestBody ChatReqDTO req) {
+                          ChatReqDTO req) {
         // 从用户会话服务获取当前登录用户信息
         UserInfoVO userInfoVO = userSessionService.getCurrentUser();
         if (userInfoVO == null) {

@@ -1,12 +1,16 @@
 package com.tripdog.service.impl;
 
 import java.io.IOException;
+import java.net.URI;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.tripdog.ai.AssistantService;
 import com.tripdog.ai.assistant.ChatAssistant;
+import com.tripdog.common.utils.FileUploadUtils;
+import com.tripdog.model.dto.FileUploadDTO;
 import com.tripdog.model.entity.ConversationDO;
 import com.tripdog.model.entity.RoleDO;
 import com.tripdog.model.dto.ChatReqDTO;
@@ -15,6 +19,9 @@ import com.tripdog.mapper.ChatHistoryMapper;
 import com.tripdog.mapper.RoleMapper;
 import com.tripdog.common.utils.RoleConfigParser;
 
+import dev.langchain4j.data.message.ImageContent;
+import dev.langchain4j.data.message.TextContent;
+import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.service.TokenStream;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +39,10 @@ public class ChatServiceImpl implements ChatService {
     private final ChatHistoryMapper chatHistoryMapper;
     private final RoleMapper roleMapper;
     private final AssistantService assistantService;
-
+    private final FileUploadUtils fileUploadUtils;
 
     @Override
-    public SseEmitter chat(Long roleId, Long userId, ChatReqDTO ChatReqDTO) {
+    public SseEmitter chat(Long roleId, Long userId, ChatReqDTO chatReqDTO) {
         SseEmitter emitter = new SseEmitter(-1L);
 
         try {
@@ -55,13 +62,20 @@ public class ChatServiceImpl implements ChatService {
 
             StringBuilder responseBuilder = new StringBuilder();
             // 使用角色专用的聊天助手，传入角色的系统提示词
-
             ChatAssistant assistant = assistantService.getAssistant(roleId, userId);
-            String userInput = ChatReqDTO.getMessage();
-            TokenStream stream = assistant.chat(
-                conversation.getConversationId(),
-                userInput
-            );
+
+            MultipartFile file = chatReqDTO.getFile();
+            TokenStream stream;
+            if(file != null) {
+                // todo 多模态支持
+                FileUploadDTO fileUploadDTO = fileUploadUtils.upload2Minio(chatReqDTO.getFile(), userId, "/tmp");
+                String imageUrl = fileUploadUtils.getUrlFromMinio(fileUploadDTO.getFileUrl());
+                UserMessage message = UserMessage.from(TextContent.from(chatReqDTO.getMessage()), ImageContent.from(URI.create(imageUrl)));
+                stream = assistant.chat(conversation.getConversationId(), message);
+            }else {
+                UserMessage message = UserMessage.from(TextContent.from(chatReqDTO.getMessage()));
+                stream = assistant.chat(conversation.getConversationId(), message);
+            }
 
             stream.onPartialResponse((data) -> {
                 try {
