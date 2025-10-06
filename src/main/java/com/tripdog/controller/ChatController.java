@@ -20,7 +20,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-
 /**
  * 聊天控制器
  * 实现一个用户对同一角色只有一个持久会话的逻辑
@@ -53,7 +52,6 @@ public class ChatController {
         if (userInfoVO == null) {
             throw new RuntimeException(ErrorCode.USER_NOT_LOGIN.getMessage());
         }
-
         Long userId = userInfoVO.getId();
 
         return chatService.chat(roleId, userId, req);

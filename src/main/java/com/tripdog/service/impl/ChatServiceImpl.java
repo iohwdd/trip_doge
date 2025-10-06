@@ -10,6 +10,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import com.tripdog.ai.AssistantService;
 import com.tripdog.ai.assistant.ChatAssistant;
 import com.tripdog.common.utils.FileUploadUtils;
+import com.tripdog.common.utils.ThreadLocalUtils;
 import com.tripdog.model.dto.FileUploadDTO;
 import com.tripdog.model.entity.ConversationDO;
 import com.tripdog.model.entity.RoleDO;
@@ -26,6 +27,7 @@ import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.service.TokenStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import static com.tripdog.common.Constants.ROLE_ID;
 
 /**
  * 聊天服务实现类
@@ -43,6 +45,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public SseEmitter chat(Long roleId, Long userId, ChatReqDTO chatReqDTO) {
+        ThreadLocalUtils.set(ROLE_ID, roleId);
         SseEmitter emitter = new SseEmitter(-1L);
 
         try {
@@ -62,7 +65,7 @@ public class ChatServiceImpl implements ChatService {
 
             StringBuilder responseBuilder = new StringBuilder();
             // 使用角色专用的聊天助手，传入角色的系统提示词
-            ChatAssistant assistant = assistantService.getAssistant(roleId, userId);
+            ChatAssistant assistant = assistantService.getAssistant();
 
             MultipartFile file = chatReqDTO.getFile();
             TokenStream stream;
@@ -111,6 +114,8 @@ public class ChatServiceImpl implements ChatService {
         } catch (Exception e) {
             log.error("聊天服务处理异常", e);
             emitter.completeWithError(e);
+        } finally {
+            ThreadLocalUtils.remove(ROLE_ID);
         }
 
         return emitter;

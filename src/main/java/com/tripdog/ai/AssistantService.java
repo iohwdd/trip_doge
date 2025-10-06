@@ -32,8 +32,8 @@ public class AssistantService {
     final CustomerChatMemoryProvider chatMemoryProvider;
     final McpClientFactory mcpClientFactory;
 
-    public ChatAssistant getAssistant(Long roleId, Long userId) {
-        EmbeddingStoreContentRetriever embeddingStoreContentRetriever = retrieverFactory.getRetriever(roleId, userId);
+    public ChatAssistant getAssistant() {
+        EmbeddingStoreContentRetriever embeddingStoreContentRetriever = retrieverFactory.getRetriever();
 
         RetrievalAugmentor retrievalAugmentor = DefaultRetrievalAugmentor.builder()
             .contentRetriever(embeddingStoreContentRetriever)
