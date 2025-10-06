@@ -73,8 +73,7 @@ public class ChatServiceImpl implements ChatService {
                 UserMessage message = UserMessage.from(TextContent.from(chatReqDTO.getMessage()), ImageContent.from(URI.create(imageUrl)));
                 stream = assistant.chat(conversation.getConversationId(), message);
             }else {
-                UserMessage message = UserMessage.from(TextContent.from(chatReqDTO.getMessage()));
-                stream = assistant.chat(conversation.getConversationId(), message);
+                stream = assistant.chat(conversation.getConversationId(), chatReqDTO.getMessage());
             }
 
             stream.onPartialResponse((data) -> {

@@ -21,8 +21,8 @@ import static com.tripdog.ai.mcp.McpConstants.WEB_SEARCH;
  */
 @Configuration
 public class McpClientFactory {
-    @Value("${DASHSCOPE_API_KEY}")
-    private String dashscopeApiKey;
+    @Value("${mcp.search-link}")
+    private String searchMcpLink;
     private static final Map<String, McpClient> map = new HashMap<>();
 
     public McpClient getMcpClient(String k) {
@@ -32,7 +32,7 @@ public class McpClientFactory {
         McpClient client;
         switch (k) {
             case WEB_SEARCH:
-                client = getWebSearchMcpClientAsync();
+                client = getWebSearchMcpClient();
                 if (client != null) {
                     map.put(k, client);
                 }
@@ -41,21 +41,14 @@ public class McpClientFactory {
         return null;
     }
 
-    private McpClient getWebSearchMcpClientAsync() {
+    private McpClient getWebSearchMcpClient() {
         try {
-            Map<String, String> headers = Map.of(
-                "Authorization", "Bearer " + dashscopeApiKey,
-                "Content-Type", "application/json"
-            );
-
             StreamableHttpMcpTransport transport = new StreamableHttpMcpTransport.Builder()
-                .url("https://dashscope.aliyuncs.com/api/v1/mcps/WebSearch/sse")
-                .customHeaders(headers)
+                .url(searchMcpLink)
                 .timeout(Duration.ofSeconds(5)) // 更短的超时时间
                 .logRequests(true)
                 .logResponses(true)
                 .build();
-
             return new DefaultMcpClient.Builder()
                 .transport(transport)
                 .build();

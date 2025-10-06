@@ -25,13 +25,6 @@ pgvector:
   user: ${PGVECTOR_USER}
   password: ${PGVECTOR_PASSWORD}
   table: ${PGVECTOR_TABLE}
-#pgvector:
-#  host: 111.62.241.120
-#  port: 32115
-#  database: trip_vdb
-#  user: root
-#  password: QtPck4m9A0b5IVeBruXZ7Ejg183W62Rs
-#  table: vectors_db
 
 # chat config
 chat:
@@ -40,3 +33,6 @@ chat:
     maxTotalTokens: 6000
     recentRawCount: 10
     minMessagesToCompress: 20
+
+mcp:
+  search-link: ${SEARCH_MCP_LINK}
