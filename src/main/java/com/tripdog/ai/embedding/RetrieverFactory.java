@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.context.annotation.Configuration;
 
+import com.tripdog.common.utils.ThreadLocalUtils;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
@@ -26,11 +27,14 @@ public class RetrieverFactory {
     final EmbeddingModel embeddingModel;
     final Map<String, EmbeddingStoreContentRetriever> cache = new HashMap<>();
 
-    public EmbeddingStoreContentRetriever getRetriever(Long roleId, Long userId) {
+    public EmbeddingStoreContentRetriever getRetriever() {
+        Long userId = (Long) ThreadLocalUtils.get(USER_ID);
+        Long roleId = (Long) ThreadLocalUtils.get(ROLE_ID);
         String k = roleId + ":" + userId;
         if(cache.containsKey(k)) {
             return cache.get(k);
         }
+
         EmbeddingStoreContentRetriever retriever = EmbeddingStoreContentRetriever.builder()
             .embeddingStore(embeddingStore)
             .embeddingModel(embeddingModel)

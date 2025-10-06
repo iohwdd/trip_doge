@@ -8,10 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
-
+import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.alibaba.dashscope.tokenizers.Tokenizer;
 import com.alibaba.dashscope.tokenizers.TokenizerFactory;
 import com.tripdog.ai.assistant.CompressAssistant;
@@ -37,7 +36,6 @@ public class CompressionService {
     public List<ChatMessage> compress(List<ChatMessage> original) {
         if (!config.isEnabled()) return original;
         if (original == null || original.size() < config.getMinMessagesToCompress()) return original;
-
         // 粗略token估算：按字符长度 / 1.8（Mock）
         int estimatedTokens = original.stream()
             .mapToInt((item) -> {
@@ -47,7 +45,10 @@ public class CompressionService {
                 } else if (item instanceof UserMessage userMessage) {
                     text = userMessage.toString();
                 } else if (item instanceof AiMessage) {
-                    text = ((AiMessage) item).text();
+                    // 工具调用跳过
+                    if(StringUtils.hasText(((AiMessage) item).text())) {
+                        text = ((AiMessage) item).text();
+                    }
                 }
                 return tokenizer.encodeOrdinary(text)
                     .size();

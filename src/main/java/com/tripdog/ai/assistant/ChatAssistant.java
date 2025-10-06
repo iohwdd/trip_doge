@@ -11,4 +11,5 @@ import dev.langchain4j.service.UserMessage;
  */
 public interface ChatAssistant {
     TokenStream chat(@MemoryId String conversationId, @UserMessage String message);
+    TokenStream chat(@MemoryId String conversationId, @UserMessage dev.langchain4j.data.message.UserMessage message);
 }

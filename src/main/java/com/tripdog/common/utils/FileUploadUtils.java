@@ -12,10 +12,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.tripdog.config.MinioConfig;
 import com.tripdog.model.dto.FileUploadDTO;
+
+import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.errors.MinioException;
+import io.minio.http.Method;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -28,11 +33,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class FileUploadUtils {
     private static String baseDir = "./files";
-
     @Value("${minio.endpoint}")
     private String MINIO_HOST;
+    private final MinioClient minioClient;
+    private final MinioConfig minioConfig;
 
     public static FileUploadDTO upload2Local(MultipartFile file, String path) {
         try {
@@ -62,11 +69,9 @@ public class FileUploadUtils {
      *
      * @param file 要上传的文件
      * @param userId 用户ID
-     * @param minioClient MinIO客户端
-     * @param bucketName 桶名
      * @return 上传结果DTO
      */
-    public FileUploadDTO upload2Minio(MultipartFile file, Long userId, MinioClient minioClient, String bucketName, String path) {
+    public FileUploadDTO upload2Minio(MultipartFile file, Long userId, String path) {
         try {
             // 检查文件
             if (file.isEmpty()) {
@@ -91,7 +96,7 @@ public class FileUploadUtils {
             // 上传文件到MinIO
             minioClient.putObject(
                 PutObjectArgs.builder()
-                    .bucket(bucketName)
+                    .bucket(minioConfig.getBucketName())
                     .object(objectKey)
                     .stream(inputStream, file.getSize(), -1)
                     .contentType(file.getContentType())
@@ -99,14 +104,14 @@ public class FileUploadUtils {
             );
 
             // 构建文件访问URL
-            String fileUrl = String.format(MINIO_HOST + "/%s/%s", bucketName, objectKey);
+            String fileUrl = String.format(MINIO_HOST + "/%s/%s", minioConfig.getBucketName(), objectKey);
 
             log.info("文件上传成功: 用户ID={}, 文件名={}, 对象路径={}", userId, originalFilename, objectKey);
 
             return FileUploadDTO.builder()
                 .fileId(GeneratorIdUtils.getUUID())
                 .fileName(fileName)
-                .filePath(fileUrl)
+                .fileUrl(objectKey)
                 .objectKey(objectKey)
                 .build();
 
@@ -116,6 +121,21 @@ public class FileUploadUtils {
         } catch (Exception e) {
             log.error("文件上传异常: {}", e.getMessage(), e);
             throw new RuntimeException("文件上传失败: " + e.getMessage());
+        }
+    }
+
+    public String getUrlFromMinio(String minioUrl) {
+        try {
+            return minioClient.getPresignedObjectUrl(
+                GetPresignedObjectUrlArgs.builder()
+                    .method(Method.GET)
+                    .bucket(minioConfig.getBucketName())
+                    .object(minioUrl)
+                    .expiry(60 * 60)
+                    .build()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -3,6 +3,7 @@ package com.tripdog.hook.interceptor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tripdog.common.ErrorCode;
 import com.tripdog.common.Result;
+import com.tripdog.common.utils.ThreadLocalUtils;
 import com.tripdog.model.vo.UserInfoVO;
 import com.tripdog.service.impl.UserSessionService;
 import com.tripdog.common.utils.TokenUtils;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import static com.tripdog.common.Constants.USER_ID;
 
 /**
  * 登录拦截器
@@ -60,6 +62,7 @@ public class LoginInterceptor implements HandlerInterceptor {
             writeErrorResponse(response, ErrorCode.USER_NOT_LOGIN);
             return false;
         }
+        ThreadLocalUtils.set(USER_ID, loginUser.getId());
 
         // 将用户信息放入请求属性中，便于Controller使用
         request.setAttribute("loginUser", loginUser);

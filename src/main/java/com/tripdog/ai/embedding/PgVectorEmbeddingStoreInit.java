@@ -31,7 +31,7 @@ public class PgVectorEmbeddingStoreInit {
     final PgVectorProperties pgVectorProperties;
 
     @Bean
-    EmbeddingStore<TextSegment> initEmbeddingStore() {
+    EmbeddingStore<TextSegment> textEmbeddingStore() {
         return PgVectorEmbeddingStore.builder()
                 .host(pgVectorProperties.getHost())
                 .port(pgVectorProperties.getPort())
@@ -47,7 +47,7 @@ public class PgVectorEmbeddingStoreInit {
     }
 
     @Bean
-    public EmbeddingStoreIngestor embeddingStoreIngestor(EmbeddingStore<TextSegment> embeddingStore, EmbeddingModel embeddingModel) {
+    public EmbeddingStoreIngestor textEmbeddingStoreIngestor(EmbeddingStore<TextSegment> embeddingStore, EmbeddingModel embeddingModel) {
         DocumentSplitter documentSplitter = DocumentSplitters.recursive(300,20);
         return EmbeddingStoreIngestor.builder()
             .embeddingModel(embeddingModel)

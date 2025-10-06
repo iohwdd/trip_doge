@@ -1,5 +1,7 @@
 package com.tripdog.model.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.Data;
 
 /**
@@ -10,4 +12,5 @@ import lombok.Data;
 @Data
 public class ChatReqDTO {
     private String message;
+    private MultipartFile file;
 }

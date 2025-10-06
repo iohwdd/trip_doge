@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -93,18 +95,15 @@ public class DocController {
 
         // 设置元数据到ThreadLocal，用于向量存储时添加
         ThreadLocalUtils.set(ROLE_ID, uploadDTO.getRoleId());
-        ThreadLocalUtils.set(USER_ID, userInfoVO.getId());
         ThreadLocalUtils.set(FILE_ID, fileId);
         ThreadLocalUtils.set(FILE_NAME, file.getOriginalFilename());
-        ThreadLocalUtils.set(UPLOAD_TIME, java.time.Instant.now().toString());
+        ThreadLocalUtils.set(UPLOAD_TIME, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
         try {
             // 上传文件到MinIO
             FileUploadDTO fileUploadDTO = fileUploadUtils.upload2Minio(
                 file,
                 userInfoVO.getId(),
-                minioClient,
-                minioConfig.getBucketName(),
                 "/doc"
             );
 
@@ -142,6 +141,11 @@ public class DocController {
         } catch (Exception e) {
             log.error("文档上传处理异常", e);
             return Result.error(ErrorCode.SYSTEM_ERROR);
+        } finally {
+            ThreadLocalUtils.remove(ROLE_ID);
+            ThreadLocalUtils.remove(FILE_ID);
+            ThreadLocalUtils.remove(FILE_NAME);
+            ThreadLocalUtils.remove(UPLOAD_TIME);
         }
     }
 
